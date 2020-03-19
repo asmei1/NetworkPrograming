@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{e714aa23-ae5b-4827-99f9-a90a0dee1353}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{12cdc497-dd55-41f1-ad02-a136fc74f2d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{1c5d3f56-def2-4c3a-a10b-123bf531d2ff}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Helper.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\ILogger.hpp">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AsmNetLib.hpp" />
+    <ClInclude Include="include\Socket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\AsmNetwork.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\BasicLogger.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\Socket.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AsmNetwork.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Helper.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BasicLogger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
