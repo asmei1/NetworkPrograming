@@ -28,6 +28,9 @@
     <ClInclude Include="include\BasicLogger.hpp">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="include\ServerSocket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Socket.cpp">
@@ -40,6 +43,9 @@
       <Filter>Utils</Filter>
     </ClCompile>
     <ClCompile Include="src\BasicLogger.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ServerSocket.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>

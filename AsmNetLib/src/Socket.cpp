@@ -1,5 +1,6 @@
 #include "Socket.h"
 #include "AsmNetwork.h"
+#include "Helper.hpp"
 #define RECV_BUFFER_SIZE 512
 
 using namespace anl;
@@ -27,24 +28,28 @@ bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t
    {
       closesocket(this->socketHandler);
    }
-
-   bool success = true;
-
-   sockaddr_in destinationAddress;
-
    if(ipType != AF_INET)
    {
       throw std::exception{ "Socket could not handle a IPv6 address!" };
    }
 
-   destinationAddress.sin_addr.s_addr = inet_addr(hostName.c_str());
-   destinationAddress.sin_family = AF_INET;
-   destinationAddress.sin_port = htons(portNumber);
+   bool success = true;
+   sockaddr_in destinationAddress;
 
-   if(0 > connect(this->socketHandler, reinterpret_cast<sockaddr*>(&destinationAddress), sizeof(destinationAddress)))
+   //ensure, that hostname is a IPv4 address
+   const auto& ipOpt = parseAddress(hostName);
+
+   if(true == success)
+   {
+      destinationAddress.sin_addr.s_addr = inet_addr(ipOpt->c_str());
+      destinationAddress.sin_family = AF_INET;
+      destinationAddress.sin_port = htons(portNumber);
+      success = 0 <= connect(this->socketHandler, reinterpret_cast<sockaddr*>(&destinationAddress), sizeof(destinationAddress));
+   }
+
+   if(false == success)
    {
       AsmNetwork::getLogger()->error("Cannot connect to " + hostName + " on port " + std::to_string(portNumber) + ".\nError code " + std::to_string(WSAGetLastError()));
-      success = false;
    }
    else
    {
@@ -95,8 +100,8 @@ std::optional<Data> Socket::recvData() const
          return std::nullopt;
       }
       recvData.insert(recvData.end(), buff, buff + receivedBytes);
-      
-   } while(receivedBytes > RECV_BUFFER_SIZE);
+
+   } while(receivedBytes >= RECV_BUFFER_SIZE);
 
    return recvData;
 }

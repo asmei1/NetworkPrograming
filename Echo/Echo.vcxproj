@@ -93,7 +93,6 @@
   <ItemGroup>
     <ClCompile Include="EchoClient.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="QLogger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="EchoClient.h" />

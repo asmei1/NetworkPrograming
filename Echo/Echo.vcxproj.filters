@@ -31,9 +31,6 @@
     <ClCompile Include="EchoClient.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="QLogger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="Echo.qrc">
