@@ -111,7 +111,7 @@ std::optional<Data> Socket::recvData() const
    {
       char buff[RECV_BUFFER_SIZE];
       receivedBytes = recv(this->socketHandler, buff, RECV_BUFFER_SIZE, 0);
-      if(receivedBytes == -1)
+      if(receivedBytes == SOCKET_ERROR || receivedBytes == 0)
       {
          return std::nullopt;
       }

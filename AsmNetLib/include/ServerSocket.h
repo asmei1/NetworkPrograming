@@ -21,10 +21,10 @@ namespace anl
       void stopListening();
 
 
+      void registerClientConnectedHandler(const ClientConnectedHandler& handler);
    private:
-      //For server with threads
-      //void registerClientConnectedHandler(const ClientConnectedHandler& handler);
-      /*class ClientsListeningTask : public StoppableTask
+      
+      class ClientsListeningTask : public StoppableTask
       {
       public:
          ClientsListeningTask(ServerSocket* serverSocket) : socket(serverSocket){}
@@ -32,10 +32,11 @@ namespace anl
       private:
          ServerSocket* socket;
       };
-      ClientsListeningTask worker{ this };
+      ClientsListeningTask* worker;
       std::thread listeningThread;
+
       std::atomic_bool listening = false;
-      ClientConnectedHandler clientConnectionHandler;*/
+      ClientConnectedHandler clientConnectionHandler;
 
       bool initialized = false;
       int portNumber;

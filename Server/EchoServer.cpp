@@ -2,6 +2,7 @@
 #include "QLogger.h"
 #include "Helper.hpp"
 #include <QtConcurrent/QtConcurrent>
+#include <execution>
 
 EchoServer::EchoServer(QWidget* parent)
    : QMainWindow(parent)
@@ -16,6 +17,11 @@ EchoServer::EchoServer(QWidget* parent)
    anl::AsmNetwork::initialize(this->logger);
    this->serverSocket = anl::AsmNetwork::createServerSocket();
 
+   this->serverSocket->registerClientConnectedHandler([this](anl::SocketUPtr socket)
+      {
+         this->handleNewClient(std::forward<anl::SocketUPtr>(socket));
+      });
+
 }
 
 EchoServer::~EchoServer()
@@ -23,55 +29,19 @@ EchoServer::~EchoServer()
    anl::AsmNetwork::cleanup();
 }
 
-void EchoServer::handleClient()
+void EchoServer::handleNewClient(anl::SocketUPtr newClient)
 {
-   while(true)
-   {
-      if(false == this->listening)
+   this->logger->info("New client connected " + anl::socketAddr2String(newClient->getRawSettings()));
+   auto client = new Client(std::move(newClient));
+   connect(client, &Client::logMessage, this, [this](const QString& msg)
       {
-         return;
-      }
-      this->serverSocket->startListening();
+         this->logger->info(msg.toStdString());
+      });
+   connect(client, &Client::disconnected, this, &EchoServer::clientDisconnected);
 
 
-      this->clientSocket = std::move(this->serverSocket->waitAndGetClient());
-
-      this->serverSocket->stopListening();
-
-
-      if(nullptr != this->clientSocket.get())
-      {
-         this->logger->info("New client connected " + anl::socketAddr2String(this->clientSocket->getRawSettings()));
-
-         while(this->clientSocket)
-         {
-            const auto& recvData = this->clientSocket->recvData();
-            if(false == this->listening)
-            {
-               return;
-            }
-
-            if(recvData)
-            {
-               this->logger->info("Received from: "
-                  + anl::socketAddr2String(this->clientSocket->getRawSettings())
-                  + ", size = " + std::to_string(recvData->size())
-                  + ": " + std::string{ recvData->begin(), recvData->end() });
-
-               if(false == this->clientSocket->sendData(*recvData))
-               {
-                  break;
-               }
-            }
-            else
-            {
-               this->logger->info("Client disconnected " + anl::socketAddr2String(this->clientSocket->getRawSettings()));
-
-               break;
-            }
-         }
-      }
-   }
+   std::lock_guard<std::mutex>(this->clientsMutex);
+   this->clients.emplace_back(client);
 }
 
 void EchoServer::on_pushButton_start_clicked()
@@ -89,13 +59,8 @@ void EchoServer::on_pushButton_start_clicked()
             return;
          }
       }
-      this->listening = true;
 
-      //to no block GUI
-      QtConcurrent::run([this]
-         {
-            handleClient();
-         });
+      this->serverSocket->startListening();
    }
 
    this->ui.pushButton_start->setEnabled(false);
@@ -106,16 +71,39 @@ void EchoServer::on_pushButton_stop_clicked()
 {
    this->logger->info("Server stopped");
 
-   this->listening = false;
    this->serverSocket->stopListening();
+   this->clients.clear();
+ //  std::for_each(std::execution::par, this->clients.begin(), this->clients.end(), std::mem_fn(&Client::closeConnection));
+   /*[this]
+   (Client* client)
+      {
+         client->closeConnection();
+         delete client;
+      });*/
 
-   if(this->clientSocket)
-   {
-      this->logger->info("Client disconnected " + anl::socketAddr2String(this->clientSocket->getRawSettings()));
-      this->clientSocket->closeSocket();
-   }
-   this->clientSocket = nullptr;
+   //std::for_each(std::execution::par, this->clientSockets.begin(), this->clientSockets.end(), [this]
+   //(auto& par)
+   //   {
+   //      this->logger->info("Client disconnected " + anl::socketAddr2String(par.first->getRawSettings()));
+   //      par.first->closeSocket();
+   //      par.second.join();
+   //   });
+   //this->clientSockets.clear();
 
    this->ui.pushButton_stop->setEnabled(false);
    this->ui.pushButton_start->setEnabled(true);
+}
+
+void EchoServer::clientDisconnected(Client* clientToRemove)
+{
+   std::lock_guard<std::mutex>(this->clientsMutex);
+   auto it = std::find_if(this->clients.begin(), this->clients.end(), [clientToRemove](const auto& ptr)
+   {
+         return ptr.get() == clientToRemove;
+   });
+
+   if(it != this->clients.end())
+   {
+      this->clients.erase(it);
+   }
 }

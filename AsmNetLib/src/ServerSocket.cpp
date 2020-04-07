@@ -1,6 +1,7 @@
 #include "ServerSocket.h"
 #include "ILogger.hpp"
 #include "Socket.h"
+#include <cassert>
 using namespace anl;
 
 ServerSocket::ServerSocket(ILogger* logger)
@@ -10,14 +11,7 @@ ServerSocket::ServerSocket(ILogger* logger)
 
 ServerSocket::~ServerSocket()
 {
-   if(true == this->initialized)
-   {
-      closesocket(this->serverSocketHandler);
-   }
-   /*if(true == this->listening)
-   {
-      this->listeningThread.join();
-   }*/
+   stopListening();
 }
 
 bool ServerSocket::initialize(int portNumber)
@@ -87,56 +81,56 @@ bool ServerSocket::startListening()
 
 
    listen(this->serverSocketHandler, 0);
-//   this->listeningThread = std::thread(std::ref(worker));
+   this->worker = new ClientsListeningTask(this);
+   this->listeningThread = std::thread([&]
+      {
+         this->worker->run();
+      });
 
    return true;
 }
+
+
 void ServerSocket::stopListening()
 {
+   assert(this->worker && "Start listening, before close it!");
+   this->listening = false;
    this->initialized = false;
    closesocket(this->serverSocketHandler);
+   this->worker->stop();
+   this->listeningThread.join();
+   delete this->worker;
 }
 
-//for later
-//
-//void ServerSocket::stopListening()
-//{
-//   this->listening = false;
-//   this->initialized = false;
-//   closesocket(this->serverSocketHandler);
-//   this->worker.stop();
-//   this->listeningThread.join();
-//}
-//
-//void ServerSocket::registerClientConnectedHandler(const ClientConnectedHandler& handler)
-//{
-//   this->clientConnectionHandler = handler;
-//}
-//
-//void ServerSocket::ClientsListeningTask::run()
-//{
-//   listen(this->socket->serverSocketHandler, 0);
-//   sockaddr_in client;
-//   int size = sizeof(sockaddr_in);
-//   while(true)
-//   {
-//      SOCKET newSocket;
-//      newSocket = accept(this->socket->serverSocketHandler, reinterpret_cast<sockaddr*>(&client), &size);
-//
-//      //if stopListening method was executed, break the loop
-//      if(true == this->stopRequested())
-//      {
-//         break;
-//      }
-//
-//      //if something went wrong
-//      if(newSocket == INVALID_SOCKET)
-//      {
-//         this->socket->logger->error("Failed to accepted new client: " + std::to_string(WSAGetLastError()));
-//         break;
-//      }
-//
-//      //if everything is okey, execute callback function
-//      this->socket->clientConnectionHandler(SocketUPtr(new Socket(this->socket->logger, newSocket, client)));
-//   }
-//}
+void ServerSocket::registerClientConnectedHandler(const ClientConnectedHandler& handler)
+{
+   this->clientConnectionHandler = handler;
+}
+
+void ServerSocket::ClientsListeningTask::run()
+{
+   listen(this->socket->serverSocketHandler, 0);
+   sockaddr_in client;
+   int size = sizeof(sockaddr_in);
+   while(true)
+   {
+      SOCKET newSocket;
+      newSocket = accept(this->socket->serverSocketHandler, reinterpret_cast<sockaddr*>(&client), &size);
+
+      //if stopListening method was executed, break the loop
+      if(true == this->stopRequested())
+      {
+         break;
+      }
+
+      //if something went wrong
+      if(newSocket == INVALID_SOCKET)
+      {
+         this->socket->logger->error("Failed to accepted new client: " + std::to_string(WSAGetLastError()));
+         break;
+      }
+
+      //if everything is okey, execute callback function
+      this->socket->clientConnectionHandler(SocketUPtr(new Socket(this->socket->logger, newSocket, client)));
+   }
+}

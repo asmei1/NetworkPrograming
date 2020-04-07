@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_EchoServer.h"
 #include "AsmNetLib.hpp"
+#include "Client.h"
 
 
 class EchoServer : public QMainWindow
@@ -13,16 +14,18 @@ public:
    EchoServer(QWidget* parent = nullptr);
    ~EchoServer();
 
-   void handleClient();
+   void handleNewClient(anl::SocketUPtr newClient);
 
 private slots:
    void on_pushButton_start_clicked();
    void on_pushButton_stop_clicked();
 
+   void clientDisconnected(Client* clientToRemove);
 private:
-   std::atomic_bool listening = true;
    anl::ILogger* logger;
-   anl::SocketUPtr clientSocket;
+   
+   std::mutex clientsMutex;
+   std::vector<std::unique_ptr<Client>> clients;
    anl::ServerSocketUPtr serverSocket{nullptr};
    Ui::ServerClass ui;
 };

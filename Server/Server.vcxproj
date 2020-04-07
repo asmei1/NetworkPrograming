@@ -89,6 +89,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="EchoServer.cpp" />
   </ItemGroup>
@@ -108,6 +109,9 @@
     <ProjectReference Include="..\AsmNetLib\AsmNetLib.vcxproj">
       <Project>{5e6969d9-2518-47ea-8009-149253eeeece}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Client.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
