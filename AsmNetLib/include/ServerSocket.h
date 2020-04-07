@@ -3,7 +3,7 @@
 #include "Types.h"
 #include <thread>
 #include <atomic>
-#include "StoppableTask.hpp"
+#include "ResumableTask.hpp"
 
 namespace anl
 {
@@ -16,15 +16,17 @@ namespace anl
 
       bool initialize(int portNumber);
       bool isReadyForListening() const;
-      SocketUPtr waitAndGetClient();
+      //SocketUPtr waitAndGetClient();
       bool startListening();
       void stopListening();
 
+      void pauseListening();
+      void resumeListening();
 
       void registerClientConnectedHandler(const ClientConnectedHandler& handler);
    private:
       
-      class ClientsListeningTask : public StoppableTask
+      class ClientsListeningTask : public ResumableTask
       {
       public:
          ClientsListeningTask(ServerSocket* serverSocket) : socket(serverSocket){}

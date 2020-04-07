@@ -37,6 +37,9 @@
     <ClInclude Include="include\StoppableTask.hpp">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="include\ResumableTask.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Socket.cpp">

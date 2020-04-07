@@ -92,6 +92,7 @@
     <ClInclude Include="include\Helper.hpp" />
     <ClInclude Include="include\ILogger.hpp" />
     <ClInclude Include="include\BasicLogger.hpp" />
+    <ClInclude Include="include\ResumableTask.hpp" />
     <ClInclude Include="include\ServerSocket.h" />
     <ClInclude Include="include\Socket.h" />
     <ClInclude Include="include\StoppableTask.hpp" />

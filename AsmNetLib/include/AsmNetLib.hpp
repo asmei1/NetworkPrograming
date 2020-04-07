@@ -6,3 +6,4 @@
 #include "AsmNetwork.h"
 #include "Socket.h"
 #include "ServerSocket.h"
+#include "ResumableTask.hpp"

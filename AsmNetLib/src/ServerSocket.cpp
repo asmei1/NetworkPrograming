@@ -20,6 +20,8 @@ bool ServerSocket::initialize(int portNumber)
    this->initialized = true;
 
    int errorCode = 0;
+
+   //create socket
    this->serverSocketHandler = socket(AF_INET, SOCK_STREAM, 0);
    if(INVALID_SOCKET == this->serverSocketHandler)
    {
@@ -32,6 +34,8 @@ bool ServerSocket::initialize(int portNumber)
       server.sin_family = AF_INET;
       server.sin_addr.s_addr = INADDR_ANY;
       server.sin_port = htons(portNumber);
+
+      //bind
       if(SOCKET_ERROR == bind(this->serverSocketHandler, reinterpret_cast<sockaddr*>(&server), sizeof(server)))
       {
          errorCode = WSAGetLastError();
@@ -46,23 +50,23 @@ bool ServerSocket::isReadyForListening() const
 {
    return this->initialized;
 }
-
-SocketUPtr ServerSocket::waitAndGetClient()
-{
-   sockaddr_in clientAddrr;
-   int size = sizeof(sockaddr_in);
-   SOCKET newSocket;
-
-
-   newSocket = accept(this->serverSocketHandler, reinterpret_cast<sockaddr*>(&clientAddrr), &size);
-
-   //if something went wrong
-   if(newSocket == INVALID_SOCKET)
-   {
-      return nullptr;
-   }
-   return SocketUPtr(new Socket(this->logger, newSocket, clientAddrr));
-}
+//
+//SocketUPtr ServerSocket::waitAndGetClient()
+//{
+//   sockaddr_in clientAddrr;
+//   int size = sizeof(sockaddr_in);
+//   SOCKET newSocket;
+//
+//
+//   newSocket = accept(this->serverSocketHandler, reinterpret_cast<sockaddr*>(&clientAddrr), &size);
+//
+//   //if something went wrong
+//   if(newSocket == INVALID_SOCKET)
+//   {
+//      return nullptr;
+//   }
+//   return SocketUPtr(new Socket(this->logger, newSocket, clientAddrr));
+//}
 
 bool ServerSocket::startListening()
 {
@@ -76,11 +80,9 @@ bool ServerSocket::startListening()
       initialize(this->portNumber);
    }
 
-
    this->logger->trace("Waiting for incoming client....");
 
-
-   listen(this->serverSocketHandler, 0);
+   //create task to listening
    this->worker = new ClientsListeningTask(this);
    this->listeningThread = std::thread([&]
       {
@@ -94,12 +96,32 @@ bool ServerSocket::startListening()
 void ServerSocket::stopListening()
 {
    assert(this->worker && "Start listening, before close it!");
+   //clear flags
    this->listening = false;
    this->initialized = false;
+
+   //close socket and listening task
    closesocket(this->serverSocketHandler);
    this->worker->stop();
    this->listeningThread.join();
    delete this->worker;
+   this->worker = nullptr;
+}
+
+void ServerSocket::pauseListening()
+{
+   if(nullptr != this->worker)
+   {
+      this->worker->pause();
+   }
+}
+
+void ServerSocket::resumeListening()
+{
+   if(nullptr != this->worker)
+   {
+      this->worker->resume();
+   }
 }
 
 void ServerSocket::registerClientConnectedHandler(const ClientConnectedHandler& handler)
@@ -114,6 +136,9 @@ void ServerSocket::ClientsListeningTask::run()
    int size = sizeof(sockaddr_in);
    while(true)
    {
+      this->waitIfPaused();
+
+
       SOCKET newSocket;
       newSocket = accept(this->socket->serverSocketHandler, reinterpret_cast<sockaddr*>(&client), &size);
 

@@ -28,4 +28,6 @@ private:
    std::vector<std::unique_ptr<Client>> clients;
    anl::ServerSocketUPtr serverSocket{nullptr};
    Ui::ServerClass ui;
+
+   const int maxClientNumber = 3;
 };
