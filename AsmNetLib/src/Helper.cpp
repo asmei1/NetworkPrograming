@@ -97,3 +97,8 @@ std::optional<std::string> anl::parseAddress(const std::string& hostName)
    }
    return ip;
 }
+
+std::string anl::socketAddr2String(const sockaddr_in& addr)
+{
+   return inet_ntoa(addr.sin_addr) + std::string(":") + std::to_string(addr.sin_port);
+}

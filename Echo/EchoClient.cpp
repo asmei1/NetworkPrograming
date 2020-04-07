@@ -1,6 +1,7 @@
 #include "EchoClient.h"
 #include "BasicLogger.hpp"
 #include "QLogger.h"
+#include <QtConcurrent/QtConcurrent>
 
 EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
 {
@@ -27,8 +28,7 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
 
             if(true == this->socket->connectTo(ipAddress, portNumber))
             {
-               this->ui.pushButton_send->setEnabled(true);
-               this->ui.pushButton_connect->setEnabled(false);
+               this->disableButtons(true);
 
                this->logger->info("Connected to server.");
             }
@@ -46,16 +46,20 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
          {
             this->logger->info("Sended: " + message);
 
-            const auto& recvData = this->socket->recvData();
+            QtConcurrent::run([this]
+               {
+                  const auto& recvData = this->socket->recvData();
 
-            if(recvData)
-            {
-               this->logger->info("Received: " + std::string{ recvData->begin(), recvData->end() });
-            }
-            else
-            {
-               this->logger->error("Server stopped responded.");
-            }
+                  if(recvData)
+                  {
+                     this->logger->info("Received: " + std::string{ recvData->begin(), recvData->end() });
+                  }
+                  else
+                  {
+                     this->logger->error("Server stopped responded.");
+                     this->disableButtons(false);
+                  }
+               });
 
             this->ui.textEdit_message->clear();
          }
@@ -72,4 +76,12 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
 EchoClient::~EchoClient()
 {
    anl::AsmNetwork::cleanup();
+}
+
+void EchoClient::disableButtons(bool connected)
+{
+   this->ui.pushButton_send->setEnabled(connected);
+   this->ui.pushButton_connect->setEnabled(!connected);
+   this->ui.lineEdit_hostName->setEnabled(!connected);
+   this->ui.lineEdit_portNumber->setEnabled(!connected);
 }

@@ -31,6 +31,12 @@
     <ClInclude Include="include\ServerSocket.h">
       <Filter>Network</Filter>
     </ClInclude>
+    <ClInclude Include="include\Types.h">
+      <Filter>Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="include\StoppableTask.hpp">
+      <Filter>Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Socket.cpp">

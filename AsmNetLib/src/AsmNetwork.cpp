@@ -1,6 +1,7 @@
 #include "AsmNetwork.h"
 #include "ILogger.hpp"
 #include "Socket.h"
+#include "ServerSocket.h"
 
 using namespace anl;
 
@@ -31,6 +32,11 @@ ILogger* AsmNetwork::getLogger()
 
 SocketUPtr AsmNetwork::createSocket()
 {
-	return SocketUPtr(new Socket());
+	return SocketUPtr(new Socket(logger));
+}
+
+ServerSocketUPtr AsmNetwork::createServerSocket()
+{
+	return ServerSocketUPtr(new ServerSocket(logger));
 }
 

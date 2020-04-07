@@ -14,6 +14,7 @@ public:
 
 
 private:
+   void disableButtons(bool connected);
    Ui::EchoClass ui;
    anl::SocketUPtr socket{nullptr};
    anl::ILogger* logger;

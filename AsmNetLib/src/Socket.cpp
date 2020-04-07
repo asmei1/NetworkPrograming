@@ -1,12 +1,24 @@
 #include "Socket.h"
-#include "AsmNetwork.h"
+#include "ILogger.hpp"
 #include "Helper.hpp"
 #define RECV_BUFFER_SIZE 512
 
 using namespace anl;
 
-Socket::Socket()
+Socket::Socket(ILogger* logger)
 {
+   this->logger = logger;
+}
+
+Socket::Socket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr)
+{
+   this->logger = logger;
+   this->socketHandler = socketHandler;
+   this->addrr = addrr;
+
+   //check if still connected
+
+   this->connected = true;
 }
 
 int Socket::initialize()
@@ -16,7 +28,7 @@ int Socket::initialize()
    if(INVALID_SOCKET == socketHandler)
    {
       errorCode = WSAGetLastError();
-      AsmNetwork::getLogger()->error("Could not create a socket: " + std::to_string(errorCode));
+      this->logger->error("Could not create a socket: " + std::to_string(errorCode));
    }
 
    return errorCode;
@@ -34,26 +46,25 @@ bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t
    }
 
    bool success = true;
-   sockaddr_in destinationAddress;
 
    //ensure, that hostname is a IPv4 address
    const auto& ipOpt = parseAddress(hostName);
 
    if(true == success)
    {
-      destinationAddress.sin_addr.s_addr = inet_addr(ipOpt->c_str());
-      destinationAddress.sin_family = AF_INET;
-      destinationAddress.sin_port = htons(portNumber);
-      success = 0 <= connect(this->socketHandler, reinterpret_cast<sockaddr*>(&destinationAddress), sizeof(destinationAddress));
+      this->addrr.sin_addr.s_addr = inet_addr(ipOpt->c_str());
+      this->addrr.sin_family = AF_INET;
+      this->addrr.sin_port = htons(portNumber);
+      success = 0 <= connect(this->socketHandler, reinterpret_cast<sockaddr*>(&this->addrr), sizeof(this->addrr));
    }
 
    if(false == success)
    {
-      AsmNetwork::getLogger()->error("Cannot connect to " + hostName + " on port " + std::to_string(portNumber) + ".\nError code " + std::to_string(WSAGetLastError()));
+      this->logger->error("Cannot connect to " + hostName + " on port " + std::to_string(portNumber) + ".\nError code " + std::to_string(WSAGetLastError()));
    }
    else
    {
-      AsmNetwork::getLogger()->trace("Connected to " + hostName + " on port " + std::to_string(portNumber));
+      this->logger->trace("Connected to " + hostName + " on port " + std::to_string(portNumber));
    }
 
    this->connected = success;
@@ -63,6 +74,11 @@ bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t
 bool Socket::isConnected() const
 {
    return this->connected;
+}
+
+void Socket::closeSocket()
+{
+   closesocket(this->socketHandler);
 }
 
 bool Socket::sendData(const Data& data) const
@@ -106,10 +122,15 @@ std::optional<Data> Socket::recvData() const
    return recvData;
 }
 
+sockaddr_in Socket::getRawSettings() const
+{
+   return this->addrr;
+}
+
 Socket::~Socket()
 {
    if(true == this->connected)
    {
-      closesocket(this->socketHandler);
+      closeSocket();
    }
 }

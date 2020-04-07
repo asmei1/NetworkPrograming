@@ -1,13 +1,10 @@
 #pragma once
 #include <winsock2.h>
 #include <memory>
-#include "ILogger.hpp"
+#include "Types.h"
 
 namespace anl
 {
-   class Socket;
-   using SocketUPtr = std::unique_ptr<Socket>;
-
    class AsmNetwork
    {
    public:
@@ -16,6 +13,7 @@ namespace anl
       static ILogger* getLogger();
 
       static SocketUPtr createSocket();
+      static ServerSocketUPtr createServerSocket();
 
    private:
       static inline WSADATA wsa;

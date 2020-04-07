@@ -94,6 +94,8 @@
     <ClInclude Include="include\BasicLogger.hpp" />
     <ClInclude Include="include\ServerSocket.h" />
     <ClInclude Include="include\Socket.h" />
+    <ClInclude Include="include\StoppableTask.hpp" />
+    <ClInclude Include="include\Types.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AsmNetwork.cpp" />

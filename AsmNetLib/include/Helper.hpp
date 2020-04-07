@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <winsock2.h>
 
 namespace anl
 {
@@ -14,5 +15,5 @@ namespace anl
 
    std::string hostNameToIP(const std::string& hostName);
    std::optional<std::string> parseAddress(const std::string& hostName);
-   
+   std::string socketAddr2String(const sockaddr_in& addr);
 }
