@@ -5,10 +5,6 @@ VisualStudioVersion = 16.0.29609.76
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AsmNetLib", "AsmNetLib\AsmNetLib.vcxproj", "{5E6969D9-2518-47EA-8009-149253EEEECE}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoServer", "Server\Server.vcxproj", "{424C826C-5631-40BB-BFD4-4A7DCB43BA6E}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EchoClient", "Echo\Echo.vcxproj", "{10D9C46B-533E-437C-A932-EBAC59F7C5DA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -19,14 +15,6 @@ Global
 		{5E6969D9-2518-47EA-8009-149253EEEECE}.Debug|x64.Build.0 = Debug|x64
 		{5E6969D9-2518-47EA-8009-149253EEEECE}.Release|x64.ActiveCfg = Release|x64
 		{5E6969D9-2518-47EA-8009-149253EEEECE}.Release|x64.Build.0 = Release|x64
-		{424C826C-5631-40BB-BFD4-4A7DCB43BA6E}.Debug|x64.ActiveCfg = Debug|x64
-		{424C826C-5631-40BB-BFD4-4A7DCB43BA6E}.Debug|x64.Build.0 = Debug|x64
-		{424C826C-5631-40BB-BFD4-4A7DCB43BA6E}.Release|x64.ActiveCfg = Release|x64
-		{424C826C-5631-40BB-BFD4-4A7DCB43BA6E}.Release|x64.Build.0 = Release|x64
-		{10D9C46B-533E-437C-A932-EBAC59F7C5DA}.Debug|x64.ActiveCfg = Debug|x64
-		{10D9C46B-533E-437C-A932-EBAC59F7C5DA}.Debug|x64.Build.0 = Debug|x64
-		{10D9C46B-533E-437C-A932-EBAC59F7C5DA}.Release|x64.ActiveCfg = Release|x64
-		{10D9C46B-533E-437C-A932-EBAC59F7C5DA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
