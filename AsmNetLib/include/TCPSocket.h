@@ -8,6 +8,8 @@
 
 namespace anl
 {
+   class InetAddress;
+
    class TCPSocket
    {
       friend class AsmNetwork;
@@ -17,7 +19,7 @@ namespace anl
    public:
       ~TCPSocket();
       int initialize();
-      bool connectTo(const std::string& hostName, uint16_t portNumber, uint8_t ipType = AF_INET);
+      void connectTo(const InetAddress& address);
       bool isConnected() const;
       void closeSocket();
 

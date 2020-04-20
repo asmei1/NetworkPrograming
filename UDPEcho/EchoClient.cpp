@@ -39,7 +39,7 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
                      anl::Data recvData(msgSize);
                      try
                      {
-                        this->udpSocket->recvData(recvData, addr, 50000);
+                        this->udpSocket->recvData(recvData, addr, 1000000);
                         this->logger->info("Received: " + std::string{ recvData.begin(), recvData.end() });
                      }
                      catch(const anl::DatagramSizeOutOfRangeException& e)

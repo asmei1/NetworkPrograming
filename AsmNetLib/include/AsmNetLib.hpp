@@ -7,7 +7,10 @@
 #include "UDPSocket.h"
 #include "TCPSocket.h"
 #include "TCPServerSocket.h"
-#include "InetAddress.h"
-#include "DatagramSizeOutOfRangeException.h"
-#include "TimeoutException.h"
 #include "ResumableTask.hpp"
+#include "InetAddress.h"
+
+#include "Exceptions/BindException.h"
+#include "Exceptions/TCPServerSocketCreateException.h"
+#include "Exceptions/TimeoutException.h"
+#include "Exceptions/DatagramSizeOutOfRangeException.h"

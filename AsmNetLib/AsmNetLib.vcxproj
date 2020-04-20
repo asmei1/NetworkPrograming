@@ -89,7 +89,10 @@
   <ItemGroup>
     <ClInclude Include="include\AsmNetwork.h" />
     <ClInclude Include="include\AsmNetLib.hpp" />
-    <ClInclude Include="include\DatagramSizeOutOfRangeException.h" />
+    <ClInclude Include="include\Exceptions\BindException.h" />
+    <ClInclude Include="include\Exceptions\DatagramSizeOutOfRangeException.h" />
+    <ClInclude Include="include\Exceptions\TCPServerSocketCreateException.h" />
+    <ClInclude Include="include\Exceptions\TimeoutException.h" />
     <ClInclude Include="include\Helper.hpp" />
     <ClInclude Include="include\ILogger.hpp" />
     <ClInclude Include="include\BasicLogger.hpp" />
@@ -98,7 +101,6 @@
     <ClInclude Include="include\TCPServerSocket.h" />
     <ClInclude Include="include\TCPSocket.h" />
     <ClInclude Include="include\StoppableTask.hpp" />
-    <ClInclude Include="include\TimeoutException.h" />
     <ClInclude Include="include\Types.h" />
     <ClInclude Include="include\UDPSocket.h" />
   </ItemGroup>

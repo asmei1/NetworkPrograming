@@ -2,8 +2,8 @@
 #include "ILogger.hpp"
 #include "Helper.hpp"
 #include "InetAddress.h"
-#include "TimeoutException.h"
-#include "DatagramSizeOutOfRangeException.h"
+#include "Exceptions/TimeoutException.h"
+#include "Exceptions/DatagramSizeOutOfRangeException.h"
 
 using namespace anl;
 
@@ -76,6 +76,7 @@ void UDPSocket::recvData(Data& data, const InetAddress& addrr, long timeoutUSec)
    {
       throw DatagramSizeOutOfRangeException{};
    }
+
    if(timeoutUSec != -1)
    {
       fd_set fds;

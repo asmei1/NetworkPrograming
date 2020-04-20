@@ -1,6 +1,7 @@
 #include "TCPSocket.h"
 #include "ILogger.hpp"
 #include "Helper.hpp"
+#include "InetAddress.h"
 #define RECV_BUFFER_SIZE 512
 
 using namespace anl;
@@ -34,41 +35,21 @@ int TCPSocket::initialize()
    return errorCode;
 }
 
-bool TCPSocket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t ipType)
+void TCPSocket::connectTo(const InetAddress& address)
 {
    if(true == this->connected)
    {
       closesocket(this->socketHandler);
    }
-   if(ipType != AF_INET)
-   {
-      throw std::exception{ "TCPSocket could not handle a IPv6 address!" };
-   }
 
-   bool success = true;
-
-   //ensure, that hostname is a IPv4 address
-   const auto& ipOpt = parseAddress(hostName);
-
-   if(true == success)
-   {
-      this->addrr.sin_addr.s_addr = inet_addr(ipOpt->c_str());
-      this->addrr.sin_family = AF_INET;
-      this->addrr.sin_port = htons(portNumber);
-      success = 0 <= connect(this->socketHandler, reinterpret_cast<sockaddr*>(&this->addrr), sizeof(this->addrr));
-   }
+   bool success = 0 <= connect(this->socketHandler, address.toSockAddr(), address.getStructSize());
 
    if(false == success)
    {
-      this->logger->error("Cannot connect to " + hostName + " on port " + std::to_string(portNumber) + ".\nError code " + std::to_string(WSAGetLastError()));
-   }
-   else
-   {
-      this->logger->trace("Connected to " + hostName + " on port " + std::to_string(portNumber));
+      throw WSAGetLastError();
    }
 
    this->connected = success;
-   return success;
 }
 
 bool TCPSocket::isConnected() const

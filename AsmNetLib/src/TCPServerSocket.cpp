@@ -2,6 +2,8 @@
 #include "ILogger.hpp"
 #include "TCPSocket.h"
 #include <cassert>
+#include "Exceptions/BindException.h"
+#include "Exceptions/TCPServerSocketCreateException.h"
 using namespace anl;
 
 TCPServerSocket::TCPServerSocket(ILogger* logger)
@@ -25,8 +27,7 @@ bool TCPServerSocket::initialize(int portNumber)
    this->serverSocketHandler = socket(AF_INET, SOCK_STREAM, 0);
    if(INVALID_SOCKET == this->serverSocketHandler)
    {
-      errorCode = WSAGetLastError();
-      this->logger->error("Could not create a server socket: " + std::to_string(errorCode));
+      throw TCPServerSocketCreateException(WSAGetLastError());
    }
    else
    {
@@ -38,8 +39,7 @@ bool TCPServerSocket::initialize(int portNumber)
       //bind
       if(SOCKET_ERROR == bind(this->serverSocketHandler, reinterpret_cast<sockaddr*>(&server), sizeof(server)))
       {
-         errorCode = WSAGetLastError();
-         this->logger->error("Bind failed with error code: " + std::to_string(errorCode));
+         throw BindException(WSAGetLastError());
       }
    }
 
@@ -50,23 +50,6 @@ bool TCPServerSocket::isReadyForListening() const
 {
    return this->initialized;
 }
-//
-//TCPSocketUPtr TCPServerSocket::waitAndGetClient()
-//{
-//   sockaddr_in clientAddrr;
-//   int size = sizeof(sockaddr_in);
-//   SOCKET newSocket;
-//
-//
-//   newSocket = accept(this->serverSocketHandler, reinterpret_cast<sockaddr*>(&clientAddrr), &size);
-//
-//   //if something went wrong
-//   if(newSocket == INVALID_SOCKET)
-//   {
-//      return nullptr;
-//   }
-//   return TCPSocketUPtr(new TCPSocket(this->logger, newSocket, clientAddrr));
-//}
 
 bool TCPServerSocket::startListening()
 {
@@ -84,10 +67,7 @@ bool TCPServerSocket::startListening()
 
    //create task to listening
    this->worker = new ClientsListeningTask(this);
-   this->listeningThread = std::thread([&]
-      {
-         this->worker->run();
-      });
+   this->listeningThread = std::thread(&StoppableTask::run, this->worker);
 
    return true;
 }

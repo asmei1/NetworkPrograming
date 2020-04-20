@@ -10,6 +10,9 @@
     <Filter Include="Network">
       <UniqueIdentifier>{1c5d3f56-def2-4c3a-a10b-123bf531d2ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Exceptions">
+      <UniqueIdentifier>{406102b5-7720-4c53-bee1-638bc63c8b18}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Helper.hpp">
@@ -46,9 +49,17 @@
     <ClInclude Include="include\InetAddress.h">
       <Filter>Network</Filter>
     </ClInclude>
-    <ClInclude Include="include\TimeoutException.h" />
-    <ClInclude Include="include\DatagramSizeOutOfRangeException.h">
-      <Filter>Network</Filter>
+    <ClInclude Include="include\Exceptions\BindException.h">
+      <Filter>Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Exceptions\DatagramSizeOutOfRangeException.h">
+      <Filter>Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Exceptions\TCPServerSocketCreateException.h">
+      <Filter>Exceptions</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Exceptions\TimeoutException.h">
+      <Filter>Exceptions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
