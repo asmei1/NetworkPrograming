@@ -29,13 +29,14 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
             {
                anl::InetAddress addr( ipAddress, portNumber );
                anl::Data dataToSend{ message.begin(), message.end() };
-               dataToSend.resize(anl::MAX_DATAGRAM_SIZE);
+               int msgSize = dataToSend.size();
+               //dataToSend.resize(anl::MAX_DATAGRAM_SIZE);
 
                this->udpSocket->sendData(dataToSend, addr);
                this->logger->info("Send: " + message);
-               std::thread([this, addr]
+               std::thread([this, addr, msgSize]
                   {
-                     anl::Data recvData(anl::MAX_DATAGRAM_SIZE);
+                     anl::Data recvData(msgSize);
                      try
                      {
                         this->udpSocket->recvData(recvData, addr, 50000);

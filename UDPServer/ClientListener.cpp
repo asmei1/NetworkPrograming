@@ -1,5 +1,6 @@
 #include "ClientListener.h"
 #include <QtConcurrent/QtConcurrent>
+#include <algorithm>
 
 ClientListener::ClientListener(anl::ILogger* logger, anl::UDPSocketSPtr socket)
 {
@@ -20,12 +21,15 @@ void ClientListener::run()
       try
       {
          const auto& address = this->socket->recvData(data);
-         const auto& msg = std::string{ data.begin(), data.end() };
+         //text is send, so i can assume, that end of string is \0 and rest of data is removable trash 
+         data.erase(std::remove(data.begin(), data.end(), '\0'),data.end());
+
+         auto msg = std::string{ data.begin(), data.end() };
          this->logger->info(QString("Received message from: %1. Message: %2")
             .arg(anl::socketAddr2String(address).c_str())
             .arg(msg.c_str())
             .toStdString());
-
+         
          QtConcurrent::run([=]
             {
                std::lock_guard(this->mutex);
