@@ -3,7 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_EchoServer.h"
 #include "AsmNetLib.hpp"
-#include "Client.h"
+#include "ClientListener.h"
 
 
 class EchoServer : public QMainWindow
@@ -20,8 +20,10 @@ private slots:
 
 private:
    anl::ILogger* logger;
-   
    Ui::ServerClass ui;
+   anl::UDPSocketSPtr serverSocket;
 
+   std::unique_ptr<ClientListener> listener;
+   std::thread listenerThread;
    const int maxClientNumber = 3;
 };

@@ -6,7 +6,6 @@
 EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
 {
    this->ui.setupUi(this);
-   this->ui.pushButton_send->setEnabled(false);
 
    auto tempLogger = new QLogger("[%TIME%] [%LOG_LEVEL%]: ");
    connect(tempLogger, &QLogger::logSig, this->ui.plainTextEdit_output, &QPlainTextEdit::appendHtml);
@@ -14,58 +13,74 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
 
    anl::AsmNetwork::initialize(this->logger);
 
-   connect(this->ui.pushButton_connect, &QPushButton::clicked, this, [this]
-      {
-         //bool ok;
-         //const auto& ipAddress = this->ui.lineEdit_hostName->text().toStdString();
-         //const auto& portNumberQStr = this->ui.lineEdit_portNumber->text();
-         //const auto& portNumber = portNumberQStr.toUInt(&ok);
-
-         //if(false == ipAddress.empty() && true == ok)
-         //{
-         //   this->socket = anl::AsmNetwork::createSocket();
-         //   this->socket->initialize();
-
-         //   if(true == this->socket->connectTo(ipAddress, portNumber))
-         //   {
-         //      this->disableButtons(true);
-
-         //      this->logger->info("Connected to server.");
-         //   }
-         //}
-         //else
-         //{
-         //   this->logger->error("Cannot connect to server.\nCheck server address or port number!");
-         //}
-      });
+   this->udpSocket = anl::AsmNetwork::createUDPSocket();
 
    connect(this->ui.pushButton_send, &QPushButton::clicked, this, [this]
       {
-         const auto& message = this->ui.textEdit_message->toPlainText().toStdString();
-         if(true /*== this->socket->sendData({ message.begin(), message.end() })*/)
-         {
-            this->logger->info("Sended: " + message);
+         bool ok;
+         const auto& ipAddress = this->ui.lineEdit_hostName->text().toStdString();
+         const auto& portNumberQStr = this->ui.lineEdit_portNumber->text();
+         const auto& portNumber = portNumberQStr.toUInt(&ok);
 
+         if(false == ipAddress.empty() && true == ok)
+         {
+            const auto& message = this->ui.textEdit_message->toPlainText().toStdString();
+            try
+            {
+               anl::InetAddress addr( ipAddress, portNumber );
+               anl::Data dataToSend{ message.begin(), message.end() };
+               dataToSend.resize(anl::MAX_DATAGRAM_SIZE);
+
+               this->udpSocket->sendData(dataToSend, addr);
+               this->logger->info("Send: " + message);
+               std::thread([this, addr]
+                  {
+                     anl::Data recvData(anl::MAX_DATAGRAM_SIZE);
+                     try
+                     {
+                        this->udpSocket->recvData(recvData, addr, 50000);
+                        this->logger->info("Received: " + std::string{ recvData.begin(), recvData.end() });
+                     }
+                     catch(const anl::DatagramSizeOutOfRangeException& e)
+                     {
+                        this->logger->error("Cannot send a message with length greater than " + std::to_string(anl::MAX_DATAGRAM_SIZE));
+                     }
+                     catch(const anl::TimeoutException& e)
+                     {
+                        this->logger->error("Timeout. Cannot get a return message from server.");
+                     }
+                     catch(int err)
+                     {
+                        this->logger->error("Server don't respond.\nError code: " + std::to_string(err));
+                     }
+                  }).detach();   
+            }
+            catch(int err)
+            {
+               this->logger->error("Cannot send a message. Error code: " + std::to_string(err));
+            }
          }
          else
          {
-            this->logger->error("Cannot send a message.");
+            this->logger->error("Destination ip address is empty or port number is invalid.");
          }
       });
-
-
 }
 
 
 EchoClient::~EchoClient()
 {
+   /*if(this->udpSocket)
+   {
+      this->udpSocket->closeSocket();
+   }
+   this->listener.stop();
+   this->listenerThread.join();*/
+
    anl::AsmNetwork::cleanup();
 }
+//
+//void EchoClient::Listener::run()
+//{
+//}
 
-void EchoClient::disableButtons(bool connected)
-{
-   this->ui.pushButton_send->setEnabled(connected);
-   this->ui.pushButton_connect->setEnabled(!connected);
-   this->ui.lineEdit_hostName->setEnabled(!connected);
-   this->ui.lineEdit_portNumber->setEnabled(!connected);
-}

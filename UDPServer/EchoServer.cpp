@@ -17,37 +17,48 @@ EchoServer::EchoServer(QWidget* parent)
 
    //Network library initialize
    anl::AsmNetwork::initialize(this->logger);
-   this->serverSocket = anl::AsmNetwork::createServerSocket();
 
 }
 
 EchoServer::~EchoServer()
 {
+   if(this->serverSocket)
+   {
+      this->serverSocket->closeSocket();
+      this->listener->stop();
+      this->listenerThread.join();
+      this->listener = nullptr;
+   }
+
    anl::AsmNetwork::cleanup();
 }
 
 void EchoServer::on_pushButton_start_clicked()
 {
-   //bool ok;
-   //const auto& portNumberQStr = this->ui.lineEdit_portNumber->text();
-   //const auto& portNumber = portNumberQStr.toUInt(&ok);
 
-   //if(true == ok)
-   //{
-   //   if(false == this->serverSocket->isReadyForListening())
-   //   {
-   //      if(0 != this->serverSocket->initialize(portNumber))
-   //      {
-   //         return;
-   //      }
-   //   }
+   bool ok;
+   const auto& portNumberQStr = this->ui.lineEdit_portNumber->text();
+   const auto& portNumber = portNumberQStr.toUInt(&ok);
 
-   //   this->serverSocket->startListening();
-   //}
-   //else
-   //{
-   //   this->logger->error("Wrong port number " + portNumberQStr.toStdString());
-   //}
+   if(true == ok)
+   {
+      try
+      {
+         this->serverSocket = anl::AsmNetwork::createUDPSocket(portNumber);
+         this->listener = std::make_unique<ClientListener>(this->logger, this->serverSocket);
+
+         this->listenerThread = std::thread(&anl::StoppableTask::run, this->listener.get());
+         this->logger->info("Server started.");
+      }
+      catch(int e)
+      {
+         this->logger->error("There was an error during initialize socket.\nError code: " + std::to_string(portNumber));
+      }
+   }
+   else
+   {
+      this->logger->error("Wrong port number " + portNumberQStr.toStdString());
+   }
 
    this->ui.pushButton_start->setEnabled(false);
    this->ui.pushButton_stop->setEnabled(true);
@@ -55,9 +66,14 @@ void EchoServer::on_pushButton_start_clicked()
 
 void EchoServer::on_pushButton_stop_clicked()
 {
+   this->serverSocket->closeSocket();
+   this->listener->stop();
+   this->listenerThread.join();
+   this->listener = nullptr;
+   this->serverSocket = nullptr;
    this->logger->info("Server stopped");
 
-   
+
    //GUI
    this->ui.pushButton_stop->setEnabled(false);
    this->ui.pushButton_start->setEnabled(true);

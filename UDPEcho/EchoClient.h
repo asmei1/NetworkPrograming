@@ -14,7 +14,19 @@ public:
 
 
 private:
-   void disableButtons(bool connected);
+
+   //class Listener : public anl::StoppableTask
+   //{
+   //public:
+   //   Listener(anl::UDPSocketSPtr udpSocket);
+   //   void run() override;
+
+   //private:
+   //   anl::UDPSocketSPtr udpSocket;
+   //} listener;
+   //std::thread listenerThread;
+
+   anl::UDPSocketSPtr udpSocket;
    Ui::EchoClass ui;
    anl::ILogger* logger;
 };

@@ -31,7 +31,7 @@
     <ClCompile Include="EchoServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Client.cpp">
+    <ClCompile Include="ClientListener.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -40,9 +40,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="EchoServer.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="Client.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -55,5 +52,10 @@
     <QtRcc Include="EchoServer.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ClientListener.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
