@@ -8,14 +8,14 @@
 
 namespace anl
 {
-   class Socket
+   class TCPSocket
    {
       friend class AsmNetwork;
-      friend class ServerSocket;
-      Socket(ILogger* logger);
-      Socket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr);
+      friend class TCPServerSocket;
+      TCPSocket(ILogger* logger);
+      TCPSocket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr);
    public:
-      ~Socket();
+      ~TCPSocket();
       int initialize();
       bool connectTo(const std::string& hostName, uint16_t portNumber, uint8_t ipType = AF_INET);
       bool isConnected() const;

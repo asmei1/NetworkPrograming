@@ -1,20 +1,20 @@
-#include "ServerSocket.h"
+#include "TCPServerSocket.h"
 #include "ILogger.hpp"
-#include "Socket.h"
+#include "TCPSocket.h"
 #include <cassert>
 using namespace anl;
 
-ServerSocket::ServerSocket(ILogger* logger)
+TCPServerSocket::TCPServerSocket(ILogger* logger)
 {
    this->logger = logger;
 }
 
-ServerSocket::~ServerSocket()
+TCPServerSocket::~TCPServerSocket()
 {
    stopListening();
 }
 
-bool ServerSocket::initialize(int portNumber)
+bool TCPServerSocket::initialize(int portNumber)
 {
    this->portNumber = portNumber;
    this->initialized = true;
@@ -46,12 +46,12 @@ bool ServerSocket::initialize(int portNumber)
    return errorCode;
 }
 
-bool ServerSocket::isReadyForListening() const
+bool TCPServerSocket::isReadyForListening() const
 {
    return this->initialized;
 }
 //
-//SocketUPtr ServerSocket::waitAndGetClient()
+//TCPSocketUPtr TCPServerSocket::waitAndGetClient()
 //{
 //   sockaddr_in clientAddrr;
 //   int size = sizeof(sockaddr_in);
@@ -65,10 +65,10 @@ bool ServerSocket::isReadyForListening() const
 //   {
 //      return nullptr;
 //   }
-//   return SocketUPtr(new Socket(this->logger, newSocket, clientAddrr));
+//   return TCPSocketUPtr(new TCPSocket(this->logger, newSocket, clientAddrr));
 //}
 
-bool ServerSocket::startListening()
+bool TCPServerSocket::startListening()
 {
    if(SOCKET_ERROR == this->serverSocketHandler)
    {
@@ -93,7 +93,7 @@ bool ServerSocket::startListening()
 }
 
 
-void ServerSocket::stopListening()
+void TCPServerSocket::stopListening()
 {
    assert(this->worker && "Start listening, before close it!");
    //clear flags
@@ -108,7 +108,7 @@ void ServerSocket::stopListening()
    this->worker = nullptr;
 }
 
-void ServerSocket::pauseListening()
+void TCPServerSocket::pauseListening()
 {
    if(nullptr != this->worker)
    {
@@ -116,7 +116,7 @@ void ServerSocket::pauseListening()
    }
 }
 
-void ServerSocket::resumeListening()
+void TCPServerSocket::resumeListening()
 {
    if(nullptr != this->worker)
    {
@@ -124,12 +124,12 @@ void ServerSocket::resumeListening()
    }
 }
 
-void ServerSocket::registerClientConnectedHandler(const ClientConnectedHandler& handler)
+void TCPServerSocket::registerClientConnectedHandler(const ClientConnectedHandler& handler)
 {
    this->clientConnectionHandler = handler;
 }
 
-void ServerSocket::ClientsListeningTask::run()
+void TCPServerSocket::ClientsListeningTask::run()
 {
    listen(this->socket->serverSocketHandler, 0);
    sockaddr_in client;
@@ -156,6 +156,6 @@ void ServerSocket::ClientsListeningTask::run()
       }
 
       //if everything is okey, execute callback function
-      this->socket->clientConnectionHandler(SocketUPtr(new Socket(this->socket->logger, newSocket, client)));
+      this->socket->clientConnectionHandler(TCPSocketUPtr(new TCPSocket(this->socket->logger, newSocket, client)));
    }
 }

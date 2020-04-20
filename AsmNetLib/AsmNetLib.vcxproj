@@ -89,21 +89,26 @@
   <ItemGroup>
     <ClInclude Include="include\AsmNetwork.h" />
     <ClInclude Include="include\AsmNetLib.hpp" />
+    <ClInclude Include="include\DatagramSizeOutOfRangeException.h" />
     <ClInclude Include="include\Helper.hpp" />
     <ClInclude Include="include\ILogger.hpp" />
     <ClInclude Include="include\BasicLogger.hpp" />
+    <ClInclude Include="include\InetAddress.h" />
     <ClInclude Include="include\ResumableTask.hpp" />
-    <ClInclude Include="include\ServerSocket.h" />
-    <ClInclude Include="include\Socket.h" />
+    <ClInclude Include="include\TCPServerSocket.h" />
+    <ClInclude Include="include\TCPSocket.h" />
     <ClInclude Include="include\StoppableTask.hpp" />
+    <ClInclude Include="include\TimeoutException.h" />
     <ClInclude Include="include\Types.h" />
+    <ClInclude Include="include\UDPSocket.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AsmNetwork.cpp" />
     <ClCompile Include="src\Helper.cpp" />
     <ClCompile Include="src\BasicLogger.cpp" />
-    <ClCompile Include="src\ServerSocket.cpp" />
-    <ClCompile Include="src\Socket.cpp" />
+    <ClCompile Include="src\TCPServerSocket.cpp" />
+    <ClCompile Include="src\TCPSocket.cpp" />
+    <ClCompile Include="src\UDPSocket.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

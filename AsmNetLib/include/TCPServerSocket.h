@@ -7,16 +7,16 @@
 
 namespace anl
 {
-   class ServerSocket
+   class TCPServerSocket
    {
       friend class AsmNetwork;
-      ServerSocket(ILogger* logger);
+      TCPServerSocket(ILogger* logger);
    public:
-      ~ServerSocket();
+      ~TCPServerSocket();
 
       bool initialize(int portNumber);
       bool isReadyForListening() const;
-      //SocketUPtr waitAndGetClient();
+      //TCPSocketUPtr waitAndGetClient();
       bool startListening();
       void stopListening();
 
@@ -29,10 +29,10 @@ namespace anl
       class ClientsListeningTask : public ResumableTask
       {
       public:
-         ClientsListeningTask(ServerSocket* serverSocket) : socket(serverSocket){}
+         ClientsListeningTask(TCPServerSocket* serverSocket) : socket(serverSocket){}
          void run() override;
       private:
-         ServerSocket* socket;
+         TCPServerSocket* socket;
       };
       ClientsListeningTask* worker;
       std::thread listeningThread;

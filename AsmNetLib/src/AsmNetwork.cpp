@@ -1,7 +1,8 @@
 #include "AsmNetwork.h"
 #include "ILogger.hpp"
-#include "Socket.h"
-#include "ServerSocket.h"
+#include "TCPSocket.h"
+#include "TCPServerSocket.h"
+#include "UDPSocket.h"
 
 using namespace anl;
 
@@ -30,13 +31,23 @@ ILogger* AsmNetwork::getLogger()
    return AsmNetwork::logger;
 }
 
-SocketUPtr AsmNetwork::createSocket()
+TCPSocketUPtr AsmNetwork::createTCPSocket()
 {
-	return SocketUPtr(new Socket(logger));
+	return TCPSocketUPtr(new TCPSocket(logger));
 }
 
-ServerSocketUPtr AsmNetwork::createServerSocket()
+UDPSocketUPtr AsmNetwork::createUDPSocket(uint16_t portNumber)
 {
-	return ServerSocketUPtr(new ServerSocket(logger));
+	return UDPSocketUPtr(new UDPSocket(logger, portNumber));
+}
+
+UDPSocketUPtr AsmNetwork::createUDPSocket()
+{
+	return UDPSocketUPtr(new UDPSocket(logger));
+}
+
+TCPServerSocketUPtr AsmNetwork::createTCPServerSocket()
+{
+	return TCPServerSocketUPtr(new TCPServerSocket(logger));
 }
 

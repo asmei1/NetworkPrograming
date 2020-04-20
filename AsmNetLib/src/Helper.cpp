@@ -1,5 +1,6 @@
 #include "Helper.hpp"
 #include <winsock2.h>
+#include "InetAddress.h"
 
 bool anl::replace(std::string& str, const std::string& from, const std::string& to)
 {
@@ -101,4 +102,9 @@ std::optional<std::string> anl::parseAddress(const std::string& hostName)
 std::string anl::socketAddr2String(const sockaddr_in& addr)
 {
    return inet_ntoa(addr.sin_addr) + std::string(":") + std::to_string(addr.sin_port);
+}
+
+std::string anl::socketAddr2String(const InetAddress& addr)
+{
+   return inet_ntoa(addr.getRawSettings().sin_addr) + std::string(":") + std::to_string(addr.getRawSettings().sin_port);
 }

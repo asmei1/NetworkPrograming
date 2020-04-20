@@ -19,17 +19,11 @@
       <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="include\AsmNetLib.hpp" />
-    <ClInclude Include="include\Socket.h">
-      <Filter>Network</Filter>
-    </ClInclude>
     <ClInclude Include="include\AsmNetwork.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="include\BasicLogger.hpp">
       <Filter>Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="include\ServerSocket.h">
-      <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="include\Types.h">
       <Filter>Utils</Filter>
@@ -40,11 +34,24 @@
     <ClInclude Include="include\ResumableTask.hpp">
       <Filter>Utils</Filter>
     </ClInclude>
+    <ClInclude Include="include\TCPSocket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TCPServerSocket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\UDPSocket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InetAddress.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="include\TimeoutException.h" />
+    <ClInclude Include="include\DatagramSizeOutOfRangeException.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Socket.cpp">
-      <Filter>Network</Filter>
-    </ClCompile>
     <ClCompile Include="src\AsmNetwork.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -54,8 +61,14 @@
     <ClCompile Include="src\BasicLogger.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\ServerSocket.cpp">
-      <Filter>Utils</Filter>
+    <ClCompile Include="src\TCPSocket.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\TCPServerSocket.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UDPSocket.cpp">
+      <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

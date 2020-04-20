@@ -5,11 +5,16 @@
 namespace anl
 {
    class ILogger;
-   class Socket;
-   class ServerSocket;
+   class UDPSocket;
+   class TCPSocket;
+   class TCPServerSocket;
 
    using Data = std::vector<char>;
-   using SocketUPtr = std::unique_ptr<Socket>;
-   using ServerSocketUPtr = std::unique_ptr<ServerSocket>;
-   using ClientConnectedHandler = std::function<void(SocketUPtr)>;
+   using UDPSocketUPtr = std::unique_ptr<UDPSocket>;
+   using UDPSocketSPtr = std::shared_ptr<UDPSocket>;
+   using TCPSocketUPtr = std::unique_ptr<TCPSocket>;
+   using TCPServerSocketUPtr = std::unique_ptr<TCPServerSocket>;
+   using ClientConnectedHandler = std::function<void(TCPSocketUPtr)>;
+
+   static inline auto MAX_DATAGRAM_SIZE = 534;
 }

@@ -12,8 +12,11 @@ namespace anl
       static int cleanup();
       static ILogger* getLogger();
 
-      static SocketUPtr createSocket();
-      static ServerSocketUPtr createServerSocket();
+      static UDPSocketUPtr createUDPSocket();
+      static UDPSocketUPtr createUDPSocket(uint16_t portNumber);
+
+      static TCPSocketUPtr createTCPSocket();
+      static TCPServerSocketUPtr createTCPServerSocket();
 
    private:
       static inline WSADATA wsa;

@@ -1,16 +1,16 @@
-#include "Socket.h"
+#include "TCPSocket.h"
 #include "ILogger.hpp"
 #include "Helper.hpp"
 #define RECV_BUFFER_SIZE 512
 
 using namespace anl;
 
-Socket::Socket(ILogger* logger)
+TCPSocket::TCPSocket(ILogger* logger)
 {
    this->logger = logger;
 }
 
-Socket::Socket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr)
+TCPSocket::TCPSocket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr)
 {
    this->logger = logger;
    this->socketHandler = socketHandler;
@@ -21,7 +21,7 @@ Socket::Socket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr)
    this->connected = true;
 }
 
-int Socket::initialize()
+int TCPSocket::initialize()
 {
    int errorCode = 0;
    this->socketHandler = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,7 +34,7 @@ int Socket::initialize()
    return errorCode;
 }
 
-bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t ipType)
+bool TCPSocket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t ipType)
 {
    if(true == this->connected)
    {
@@ -42,7 +42,7 @@ bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t
    }
    if(ipType != AF_INET)
    {
-      throw std::exception{ "Socket could not handle a IPv6 address!" };
+      throw std::exception{ "TCPSocket could not handle a IPv6 address!" };
    }
 
    bool success = true;
@@ -71,23 +71,23 @@ bool Socket::connectTo(const std::string& hostName, uint16_t portNumber, uint8_t
    return success;
 }
 
-bool Socket::isConnected() const
+bool TCPSocket::isConnected() const
 {
    return this->connected;
 }
 
-void Socket::closeSocket()
+void TCPSocket::closeSocket()
 {
    closesocket(this->socketHandler);
 }
 
-bool Socket::sendData(const Data& data) const
+bool TCPSocket::sendData(const Data& data) const
 {
    bool success = true;
 
    if(false == this->connected)
    {
-      throw std::exception{ "Socket is not connected!" };
+      throw std::exception{ "TCPSocket is not connected!" };
    }
 
    if(false == send(this->socketHandler, data.data(), data.size(), 0))
@@ -98,11 +98,11 @@ bool Socket::sendData(const Data& data) const
    return success;
 }
 
-std::optional<Data> Socket::recvData() const
+std::optional<Data> TCPSocket::recvData() const
 {
    if(false == this->connected)
    {
-      throw std::exception{ "Socket is not connected!" };
+      throw std::exception{ "TCPSocket is not connected!" };
    }
 
    Data recvData;
@@ -122,12 +122,12 @@ std::optional<Data> Socket::recvData() const
    return recvData;
 }
 
-sockaddr_in Socket::getRawSettings() const
+sockaddr_in TCPSocket::getRawSettings() const
 {
    return this->addrr;
 }
 
-Socket::~Socket()
+TCPSocket::~TCPSocket()
 {
    if(true == this->connected)
    {
