@@ -32,7 +32,23 @@ private:
       void run() override;
 
    };
-   std::unique_ptr<BroadcastListener> listener;
+
+   class MulticastListener : public anl::StoppableTask
+   {
+      anl::MulticastSocketUPtr socket;
+      anl::ILogger* logger;
+   public:
+      MulticastListener(anl::ILogger* logger, const anl::InetAddress& addr)
+      {
+         this->logger = logger;
+         this->socket = anl::AsmNetwork::createMulticastSocket();
+         this->socket->initilizeRecv(addr);
+      }
+      void run() override;
+
+   };
+   std::unique_ptr<BroadcastListener> broadcastListener;
+   std::unique_ptr<MulticastListener> multicastListener;
    std::thread listenerThread;
 
 

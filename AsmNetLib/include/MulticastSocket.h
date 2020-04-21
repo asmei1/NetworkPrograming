@@ -16,19 +16,26 @@ namespace anl
       friend class AsmNetwork;
       friend class UDPServerSocket;
 
+
       MulticastSocket(ILogger* logger);
-      MulticastSocket(ILogger* logger, uint16_t portNumber);
 
    public:
       ~MulticastSocket();
       void closeSocket();
 
-      void sendData(const Data& data, const InetAddress& addrr) const;
-      void recvData(Data& data, const InetAddress& addrr, long timeoutUSec = -1) const;
-      InetAddress recvData(Data& data) const;
+      void initilizeRecv(const InetAddress& addr);
+      void sendData(const Data& data, const InetAddress& addr) const;
+      void recvData(Data& data) const;
       sockaddr_in getRawSettings() const;
 
    private:
+
+      void reusePortEnabled();
+      void disableMulticastLoop();
+      void getLocalInterface(in_addr& localInterface);
+
+
+      bool receiveInitialized = false;
       ILogger* logger;
       sockaddr_in addrr;
       SOCKET socketHandler;

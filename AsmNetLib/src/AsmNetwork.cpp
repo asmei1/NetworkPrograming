@@ -3,6 +3,7 @@
 #include "TCPSocket.h"
 #include "TCPServerSocket.h"
 #include "UDPSocket.h"
+#include "MulticastSocket.h"
 
 using namespace anl;
 
@@ -29,6 +30,11 @@ int AsmNetwork::cleanup()
 ILogger* AsmNetwork::getLogger()
 {
    return AsmNetwork::logger;
+}
+
+MulticastSocketUPtr AsmNetwork::createMulticastSocket()
+{
+	return MulticastSocketUPtr(new MulticastSocket(logger));
 }
 
 TCPSocketUPtr AsmNetwork::createTCPSocket()

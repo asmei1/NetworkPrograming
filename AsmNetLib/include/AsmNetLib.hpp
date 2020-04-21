@@ -4,6 +4,7 @@
 #include "Types.h"
 #include "ILogger.hpp"
 #include "AsmNetwork.h"
+#include "MulticastSocket.h"
 #include "UDPSocket.h"
 #include "TCPSocket.h"
 #include "TCPServerSocket.h"

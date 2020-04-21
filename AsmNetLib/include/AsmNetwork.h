@@ -12,6 +12,7 @@ namespace anl
       static int cleanup();
       static ILogger* getLogger();
 
+      static MulticastSocketUPtr createMulticastSocket();
       static UDPSocketUPtr createUDPSocket();
       static UDPSocketUPtr createBroadcastSocket(uint16_t portNumber);
       static UDPSocketUPtr createServerUDPSocket(uint16_t portNumber);

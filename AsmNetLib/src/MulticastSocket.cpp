@@ -1,13 +1,42 @@
 #include "MulticastSocket.h"
 #include "ILogger.hpp"
+#include "WS2tcpip.h"
 #include "Helper.hpp"
 #include "InetAddress.h"
 #include "Exceptions/TimeoutException.h"
 #include "Exceptions/DatagramSizeOutOfRangeException.h"
 #include "Exceptions/BindException.h"
+#include <cassert>
 
 using namespace anl;
 
+void MulticastSocket::reusePortEnabled()
+{
+   char reuse = 1;
+   if(setsockopt(this->socketHandler, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse)) < 0)
+   {
+      closesocket(this->socketHandler);
+      throw WSAGetLastError();
+   }
+}
+
+void MulticastSocket::disableMulticastLoop()
+{
+   char loop = 0;
+   if(setsockopt(this->socketHandler, IPPROTO_IP, IP_MULTICAST_LOOP, &loop, sizeof(loop)) < 0)
+   {
+      throw WSAGetLastError();
+   }
+}
+
+void MulticastSocket::getLocalInterface(in_addr& localInterface)
+{
+   char myname[32] = { 0 };
+   gethostname(myname, 32);
+   hostent* he;
+   he = gethostbyname(myname);
+   memcpy(&localInterface.s_addr, *he->h_addr_list, 4);
+}
 
 MulticastSocket::MulticastSocket(ILogger* logger)
 {
@@ -19,105 +48,78 @@ MulticastSocket::MulticastSocket(ILogger* logger)
       throw WSAGetLastError();
    }
 
-}
 
-MulticastSocket::MulticastSocket(ILogger* logger, uint16_t portNumber)
-{
-   this->logger = logger;
-
-
-   this->socketHandler = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
-   if(SOCKET_ERROR == socketHandler)
+   int ttl = 1;
+   if(setsockopt(this->socketHandler, IPPROTO_IP, IP_MULTICAST_TTL, reinterpret_cast<char*>(&ttl), sizeof(ttl)) < 0)
    {
       throw WSAGetLastError();
    }
 
-   this->addrr.sin_addr.S_un.S_addr = INADDR_ANY;
+   disableMulticastLoop();
+   reusePortEnabled();
+
+   in_addr localInterface;
+   getLocalInterface(localInterface);
+
+   if(setsockopt(this->socketHandler, IPPROTO_IP, IP_MULTICAST_IF, reinterpret_cast<char*>(&localInterface), sizeof(localInterface)) < 0)
+   {
+      throw WSAGetLastError();
+   }
+}
+
+void MulticastSocket::initilizeRecv(const InetAddress& addr)
+{
    this->addrr.sin_family = AF_INET;
-   this->addrr.sin_port = htons(portNumber);
-
-   //Bind
-   bind(this->socketHandler, (sockaddr*)&this->addrr, sizeof(this->addrr));
-   if(SOCKET_ERROR == this->socketHandler)
+   this->addrr.sin_port = htons(addr.getRawSettings().sin_port);
+   this->addrr.sin_addr.s_addr = INADDR_ANY;
+   if(bind(this->socketHandler, reinterpret_cast<sockaddr*>(&this->addrr), sizeof(this->addrr)))
    {
-      throw BindException(WSAGetLastError());
+      throw WSAGetLastError();
    }
+
+   char myname[32] = { 0 };
+   gethostname(myname, 32);
+   hostent* he;
+   he = gethostbyname(myname);
+
+   ip_mreq group;
+   group.imr_multiaddr.s_addr = addr.getRawSettings().sin_addr.s_addr;
+   memcpy(&group.imr_interface.s_addr, *he->h_addr_list, 4);
+   if(setsockopt(this->socketHandler, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&group), sizeof(group)) < 0)
+   {
+      throw WSAGetLastError();
+   }
+
+   this->receiveInitialized = true;
 }
 
-void MulticastSocket::sendData(const Data& data, const InetAddress& addrr) const
+void MulticastSocket::sendData(const Data& data, const InetAddress& addr) const
 {
    if(data.size() > MAX_DATAGRAM_SIZE)
    {
       throw DatagramSizeOutOfRangeException{};
    }
 
-   if(SOCKET_ERROR == sendto(this->socketHandler, data.data(), static_cast<int>(data.size()), 0, addrr.toSockAddr(), addrr.getStructSize()))
+   if(SOCKET_ERROR == sendto(this->socketHandler, data.data(), static_cast<int>(data.size()), 0, addr.toSockAddr(), addr.getStructSize()))
    {
       throw WSAGetLastError();
    }
 }
 
-void MulticastSocket::recvData(Data& data, const InetAddress& addrr, long timeoutUSec) const
+void MulticastSocket::recvData(Data& data) const
 {
+   assert(this->receiveInitialized);
+
+
    if(data.size() > MAX_DATAGRAM_SIZE)
    {
       throw DatagramSizeOutOfRangeException{};
    }
 
-   if(timeoutUSec != -1)
-   {
-      fd_set fds;
-      int n;
-      struct timeval tv;
-
-      // Set up the file descriptor set.
-      FD_ZERO(&fds);
-      FD_SET(this->socketHandler, &fds);
-
-      // Set up the struct timeval for the timeout.
-      tv.tv_sec = 0;
-      tv.tv_usec = timeoutUSec;
-
-      // Wait until timeout or data received.
-      n = select(this->socketHandler, &fds, NULL, NULL, &tv);
-      if(n == 0)
-      {
-         throw TimeoutException{};
-      }
-      else if(n == -1)
-      {
-         throw WSAGetLastError();
-      }
-   }
-
-   int size = addrr.getStructSize();
-   if(SOCKET_ERROR == recvfrom(this->socketHandler, data.data(), static_cast<int>(data.size()), 0, addrr.toSockAddr(), &size))
+   if(0 > recv(this->socketHandler, data.data(), static_cast<int>(data.size()), 0))
    {
       throw WSAGetLastError();
    }
-}
-
-InetAddress MulticastSocket::recvData(Data& data) const
-{
-   if(data.size() > MAX_DATAGRAM_SIZE)
-   {
-      throw DatagramSizeOutOfRangeException{};
-   }
-
-   
-   if(data.size() == 0)
-   {
-      data.resize(MAX_DATAGRAM_SIZE);
-   }
-   sockaddr_in tempAddress;
-   int size = sizeof(tempAddress);
-   if(SOCKET_ERROR == recvfrom(this->socketHandler, data.data(), static_cast<int>(data.size()), 0, reinterpret_cast<sockaddr*>(&tempAddress), &size))
-   {
-      throw WSAGetLastError();
-   }
-
-   return InetAddress(tempAddress);
 }
 
 sockaddr_in MulticastSocket::getRawSettings() const
@@ -125,7 +127,13 @@ sockaddr_in MulticastSocket::getRawSettings() const
    return this->addrr;
 }
 
+
 MulticastSocket::~MulticastSocket()
 {
    closeSocket();
+}
+
+void MulticastSocket::closeSocket()
+{
+   closesocket(this->socketHandler);
 }
