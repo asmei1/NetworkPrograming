@@ -52,7 +52,7 @@ EchoClient::EchoClient(QWidget* parent) : QMainWindow(parent)
                      }
                      catch(int err)
                      {
-                        this->logger->error("Server don't respond.\nError code: " + std::to_string(err));
+                        this->logger->error("Server didn't respond.\nError code: " + std::to_string(err));
                      }
                   }).detach();   
             }

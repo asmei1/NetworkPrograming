@@ -61,6 +61,9 @@
     <ClInclude Include="include\Exceptions\TimeoutException.h">
       <Filter>Exceptions</Filter>
     </ClInclude>
+    <ClInclude Include="include\MulticastSocket.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\AsmNetwork.cpp">
@@ -79,6 +82,9 @@
       <Filter>Network</Filter>
     </ClCompile>
     <ClCompile Include="src\UDPSocket.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\MulticastSocket.cpp">
       <Filter>Network</Filter>
     </ClCompile>
   </ItemGroup>
