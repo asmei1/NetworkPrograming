@@ -36,7 +36,7 @@ TCPSocketUPtr AsmNetwork::createTCPSocket()
 	return TCPSocketUPtr(new TCPSocket(logger));
 }
 
-UDPSocketUPtr AsmNetwork::createUDPSocket(uint16_t portNumber)
+UDPSocketUPtr AsmNetwork::createServerUDPSocket(uint16_t portNumber)
 {
 	return UDPSocketUPtr(new UDPSocket(logger, portNumber));
 }
@@ -44,6 +44,13 @@ UDPSocketUPtr AsmNetwork::createUDPSocket(uint16_t portNumber)
 UDPSocketUPtr AsmNetwork::createUDPSocket()
 {
 	return UDPSocketUPtr(new UDPSocket(logger));
+}
+
+UDPSocketUPtr AsmNetwork::createBroadcastSocket(uint16_t portNumber)
+{
+	auto socket = new UDPSocket(logger, portNumber, true);
+
+	return UDPSocketUPtr(socket);
 }
 
 TCPServerSocketUPtr AsmNetwork::createTCPServerSocket()

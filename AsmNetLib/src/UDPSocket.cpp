@@ -4,6 +4,7 @@
 #include "InetAddress.h"
 #include "Exceptions/TimeoutException.h"
 #include "Exceptions/DatagramSizeOutOfRangeException.h"
+#include "Exceptions/BindException.h"
 
 using namespace anl;
 
@@ -20,16 +21,21 @@ UDPSocket::UDPSocket(ILogger* logger)
 
 }
 
-UDPSocket::UDPSocket(ILogger* logger, uint16_t portNumber)
+UDPSocket::UDPSocket(ILogger* logger, uint16_t portNumber, bool enableBroadcast)
 {
    this->logger = logger;
 
-
-   this->socketHandler = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+   
+   this->socketHandler = socket(AF_INET, SOCK_DGRAM, enableBroadcast ? 0 : IPPROTO_UDP);
 
    if(SOCKET_ERROR == socketHandler)
    {
       throw WSAGetLastError();
+   }
+
+   if(true == enableBroadcast)
+   {
+      this->enableBroadcast();
    }
 
    this->addrr.sin_addr.S_un.S_addr = INADDR_ANY;
@@ -37,24 +43,31 @@ UDPSocket::UDPSocket(ILogger* logger, uint16_t portNumber)
    this->addrr.sin_port = htons(portNumber);
 
    //Bind
-   bind(this->socketHandler, (sockaddr*)&this->addrr, sizeof(this->addrr));
+   ::bind(this->socketHandler, (sockaddr*)&this->addrr, sizeof(this->addrr));
    if(SOCKET_ERROR == this->socketHandler)
    {
-      throw WSAGetLastError();
+      throw BindException(WSAGetLastError());
    }
-}
-
-UDPSocket::UDPSocket(ILogger* logger, SOCKET socketHandler, const sockaddr_in& addrr)
-{
-   this->logger = logger;
-   this->socketHandler = socketHandler;
-   this->addrr = addrr;
-
 }
 
 void UDPSocket::closeSocket()
 {
    closesocket(this->socketHandler);
+}
+
+void UDPSocket::enableBroadcast()
+{
+   char broadcast = 1;
+   if(setsockopt(this->socketHandler, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof(broadcast)) < 0)
+   {
+      closesocket(this->socketHandler);
+      throw WSAGetLastError();
+   }
+   if(setsockopt(this->socketHandler, SOL_SOCKET, SO_REUSEADDR, &broadcast, sizeof(broadcast)) < 0)
+   {
+      closesocket(this->socketHandler);
+      throw WSAGetLastError();
+   }
 }
 
 void UDPSocket::sendData(const Data& data, const InetAddress& addrr) const

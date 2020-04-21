@@ -13,7 +13,8 @@ namespace anl
       static ILogger* getLogger();
 
       static UDPSocketUPtr createUDPSocket();
-      static UDPSocketUPtr createUDPSocket(uint16_t portNumber);
+      static UDPSocketUPtr createBroadcastSocket(uint16_t portNumber);
+      static UDPSocketUPtr createServerUDPSocket(uint16_t portNumber);
 
       static TCPSocketUPtr createTCPSocket();
       static TCPServerSocketUPtr createTCPServerSocket();

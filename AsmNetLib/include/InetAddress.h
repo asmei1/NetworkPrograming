@@ -5,6 +5,7 @@ namespace anl
 {
    class InetAddress
    {
+      InetAddress() = default;
    public:
       InetAddress(const std::string& hostName, const int& portNumber)
       {
@@ -33,6 +34,15 @@ namespace anl
       int getStructSize() const
       {
          return sizeof(addrr);
+      }
+
+      static InetAddress broadcastAddress(int port)
+      {
+         InetAddress inet{};
+         inet.addrr.sin_addr.s_addr = inet_addr("255.255.255.255");
+         inet.addrr.sin_family = AF_INET;
+         inet.addrr.sin_port = htons(port);
+         return inet;
       }
 
    private:
